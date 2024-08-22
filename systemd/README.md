@@ -1,4 +1,4 @@
-# TeamTalk 5 systemd service for Debian 9
+# Net Reminder systemd service for Ubuntu
 
 Here's the instruction for installing the Net Reminder script on Ubuntu 22.04 LTS.
 
