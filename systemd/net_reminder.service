@@ -1,0 +1,25 @@
+# Net_reminder server systemd unit
+#
+# To start this service you must have configured a user and group
+# both of the name 'netreminder'. In addition a server configuration 
+# file must be located in /etc/net_reminder/net_reminder.yaml. The user 
+# 'netreminder' must have read/write access to this file. Likewise
+# for the server log file which will be located in 
+# /var/log/net_reminder/net_reminder.log
+#
+
+[Unit]
+Description=Net Reminder Email Notifications
+After=network.target
+
+[Service]
+ExecStart=/usr/local/bin/net_reminder.sh
+ExecReload=kill -HUP $MAINPID
+Type=simple
+User=netreminder
+Group=netreminder
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

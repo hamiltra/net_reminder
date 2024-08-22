@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<head>
+<style>
+td {
+  vertical-align: top;
+}
+
+.font-medium {
+  font-size: 18px;
+}
+.font-small {
+  font-size: small;
+  color: Silver;
+}
+</style>
+{% block title %}<h2>Amateur Radio {{ net_type }} Net for {{ net_date }}</h2> {% endblock %}
+</head>
+<body>
+{% block content %}
+<table>
+<tr>
+<td><img src="cid:{{logo}}"></td>
+<td>
+<p><h3>Amateur Radio {{ net_type }} Net Control Operators for {{net_date }}:</h3>
+  <font class="font-medium">
+  <ul>
+      <li><b>Primary Net Control:</b> {{ primary_net_control }}
+      <li><b>Backup Net Control:</b> {{ backup_net_control}}
+  </ul>
+  </font>
+  <br>
+  Weekly Nets and Travel Nets are held on repeater: <b><font color="red">XXX.XXX- PL xx.x</font></b>.
+  <br><br>
+  <b>HEADS UP:</b> For {{net_date_2wk}}, <b>Primary is {{ primary_net_control_2wk}}</b> and <b>Backup is {{ backup_net_control_2wk}}</b>.<br><br>
+  
+  <h4>Net Preparation:</h4>
+    <ul>
+      <li>For the Weekly Net, please arrive well in advance of 1900 hrs to allow time to setup and make the 1855 hr announcement. 
+      <li>If you are scheduled for the Travel Net, then arrive well in advance of the 1825 hr announcement and 1830 hr Travel Net.
+  </ul>
+  <br>
+  <b>NOTE:</b> If you are unable to perform as Primary Net Control, be sure to coordinate with Backup Net Control to ensure that the Net is covered. If Backup Net Control is <u>ALSO unavailable</u> , THE PRIMARY NET CONTROL must find a replacement and notify <a href="mailto:{{switch_notify1_email}}">{{switch_notify1_name}}, {{switch_notify1_email}}</a> or <a href="mailto:{{switch_notify2_email}}">{{switch_notify2_name}}, {{switch_notify2_email}}</a> of the switch.
+  <br><br>
+</p>
+</td>
+</tr>
+<tr><td align='center' colspan='2'>For maintenance to the Net schedule, please contact {{excel_maintainer_name}} <a href='mailto: {{excel_maintainer_email}}'>{{excel_maintainer_email}}</a><br><br>
+<font align='center' class="font-small">This notice automated using the net_reminder script <br>maintained by {{script_maintainer_name}}, <a href='mailto: {{script_maintainer_email}}'>{{script_maintainer_email}}</a></font><br>
+</td></tr>
+</table>
+{% endblock %}
+</body>
+</html>

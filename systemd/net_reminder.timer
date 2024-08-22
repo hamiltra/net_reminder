@@ -1,0 +1,10 @@
+[Unit]
+Description=Net Reminder Tuesday notification
+
+[Timer]
+OnCalendar=Tue
+AccuracySec=12h
+Persistent=true
+
+[Install]
+WantedBy=timers.target

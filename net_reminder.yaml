@@ -1,0 +1,42 @@
+#######################################
+#
+# Excel Spreadsheet Configuration
+#
+#######################################
+# Excel Roster and Schedule files and sheets
+schedule_excel_file: excel_src/NetControlSchedule.xlsx
+schedule_sheet_name: Current
+roster_excel_file: excel_src/Roster.xlsx
+roster_sheet_name: Roster Sheet 1
+emeritus_sheet_name: Roster Sheet 2
+#######################################
+#
+# Email Configuration
+#
+#######################################
+# Email SMTP configuration setup
+email_from: <Email from>
+smtp_server: <SMTP Server>
+smtp_port: <SMTP Server Port>
+smtp_auth_user: <Authentication user>
+smtp_auth_pass: <Authentication password>
+# Email logo file
+logo: image_src/OIP.png
+# Email subject template
+email_subject_template: LNACS {0} Net for {1}
+# Email body template file
+email_config: html_src/net_reminder.html
+# Email reply-to
+email_reply_to: <Who should receive reply emails>
+# Email body script maintainer info
+script_maintainer_name: Script Maintainer
+script_maintainer_email: xyzzy@example.com
+# Email body Excel files maintainer info
+excel_maintainer_name: <Excel file maintainer>
+excel_maintainer_email: <Excel file email address>
+# Email body switching duty notification maintainer
+switch_notify1_name: <Name of who to notify when switching>
+switch_notify1_email: <Email of who to notify when switching>
+switch_notify2_name: <Name of who to notify when switching>
+switch_notify2_email: <Email of who to notify when switching>
+
