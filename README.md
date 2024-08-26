@@ -39,7 +39,7 @@ python3 net_reminder.py -c net_reminder_org.yaml --log test.log --test_email xyz
 ```
 
 #### Email Template
-The email template is configurable as an HTML template. The default file is net_reminder.html. As such, there are several variables that are available to the template. Static variables are managed in the configuration file. Dynamic variables are determined at run-time.
+The email template is configurable as an HTML template. The default file is net_reminder.html. As such, there are several variables that are available to the template. Static variables are managed in the configuration file. Dynamic variables are determined at run-time. The recommended PNG logo size is 127x127px.
 
 Template Variables:
 * net_type (dynamic)
