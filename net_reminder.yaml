@@ -24,8 +24,10 @@ smtp_auth_pass: <Authentication password>
 logo: image_src/OIP.png
 # Email subject template
 email_subject_template: LNACS {0} Net for {1}
+no_net_control_email_subject_template: "ATTENTION: No Net Control Configured as of {0}"
 # Email body template file
 email_config: html_src/net_reminder.html
+no_net_control_email_config: html_src/no_net_reminder.html
 # Email reply-to
 email_reply_to: <Who should receive reply emails>
 # Email body script maintainer info

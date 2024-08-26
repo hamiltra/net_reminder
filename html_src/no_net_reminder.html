@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<head>
+<style>
+td {
+  vertical-align: top;
+}
+
+.font-medium {
+  font-size: 18px;
+}
+.font-small {
+  font-size: small;
+  color: Silver;
+}
+</style>
+<!--Revision 1.0: Initial revision-->
+{% block title %}<h4><font color="red">ATTENTION: NO On-call Net Control Operators Found on {{net_date}}</font></h4> {% endblock %}
+</head>
+<body>
+{% block content %}
+<table>
+<tr>
+<td>
+<h5>No amateur radio Net Control Operators for either this week's (or next week's) were found in the Excel configuration!! Please configure additional Net Control operators for future Nets.</h5>
+</td>
+</tr>
+</table>
+{% endblock %}
+</body>
+</html>
