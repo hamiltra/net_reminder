@@ -27,13 +27,11 @@ from pandas.core.groupby.groupby import DataError
 # Configuration file
 import yaml
 import requests
-#from requests.exceptions import HTTPError
-#from requests.auth import HTTPBasicAuth
 
 #######################################
 # Script version
 #######################################
-SCRIPT_VERSION = "1.0.0"
+SCRIPT_VERSION = "1.0.1"
 
 #######################################
 # Declaring global vars
@@ -494,14 +492,22 @@ def fetch_remote_file(url, filename, user, password):
                         auth=(user,password), timeout=30)
         logger.info("File request %s status code: %s", url, req.status_code)
 
-        if os.path.isfile(filename):
-            os.unlink(filename)
+        if req.status_code == 200:
+            if os.path.isfile(filename):
+                os.unlink(filename)
 
-        with open(filename, 'wb') as f:
-            for chunk in req.iter_content(chunk_size=512 * 1024):
-                if chunk: # filter out keep-alive new chunks
-                    f.write(chunk)
-            f.close()
+            with open(filename, 'wb') as f:
+                for chunk in req.iter_content(chunk_size=512 * 1024):
+                    if chunk: # filter out keep-alive new chunks
+                        f.write(chunk)
+                f.close()
+        else:
+            logger.fatal("Request for file %s failed: %s",
+                         filename,
+                         req.reason
+                         )
+            sys.exit()
+
     except (IOError, requests.exceptions.Timeout) as e:
         logger.fatal(e)
         sys.exit()
