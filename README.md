@@ -8,7 +8,7 @@ Installation tasks
 1. Download the release distribution or clone the repository
 2. Create a login account if necessary.
 3. Setup the configuration options including the file paths
-4. Set permissions on the configuration options file for the user. Turn off world readble/writable. For example, chnmod 0750
+4. Set permissions on the configuration options file for the user. Turn off world readble/writable. For example, chmod 0750
 5. Install and configure the system timer scripts
 6. Trigger the script and verify logs
 7. Test and verify that the information is how you desire it to be while making any adjustments
@@ -18,16 +18,19 @@ Below is a snapshot of the script help.
 
 Script Help
 ```
-net_reminder.py - Net Reminder
+net_reminder.py 1.0.0
 
- -h, --help        This notice.
- -c, --config      Configuration file. default: net_reminder.yaml
- -e, --econfig     Email layout configuration file. default: net_reminder.html
- -l, --log         Log file. default: net_reminder.log
- -n, --now         Now: mm/dd/yyyy. default: current date
- -s, --subject     Email subject. default: '<0> Net for <1>'
- -t, --test        Run script but don't send mail and print output. default: False
- -q, --test_email  Run script using test emails provided. default: None
+Net reminder - Amateur radio Net email reminder
+
+ -h, --help                This help notice.
+ -c, --config <file>       Configuration file (default: net_reminder.yaml).
+ -e, --econfig <file>      Email layout configuration file (default: net_reminder.html).
+ -f, --fetch_remote        Fetch remote files (default: False).
+ -l, --log <file>          Log file (default: net_reminder.log).
+ -n, --now <mm/dd/YYYY>    Now: mm/dd/yyyy (default: current date).
+ -s, --subject <string>    Email subject (default: '<0> Net for<1>').
+ -t, --test                Run script but don't send mail and print output (default: False).
+ -q, --test_email <email>  Run script using test emails provided (default: None).
 ```
 
 Here are a few examples of how to run and to test your configurations before going to production.
@@ -35,11 +38,11 @@ Here are a few examples of how to run and to test your configurations before goi
 python3 net_reminder.py -c net_reminder_org.yaml --test_email xyzzy@example.com --test
 python3 net_reminder.py -c net_reminder_org.yaml --test_email xyzzy@example.com
 python3 net_reminder.py -c net_reminder_org.yaml -n 09/18/2024 --test_email xyzzy@example.com
-python3 net_reminder.py -c net_reminder_org.yaml --log test.log --test_email xyzzy@example.com
+python3 net_reminder.py -c net_reminder_org.yaml --log test.log --test_email xyzzy@example.com --fetch_remote
 ```
 
 #### Email Template
-The email template is configurable as an HTML template. The default file is net_reminder.html. As such, there are several variables that are available to the template. Static variables are managed in the configuration file. Dynamic variables are determined at run-time. The recommended PNG logo size is 127x127px.
+The email template is configurable as an HTML template. The default file is net_reminder.html. As such, there are several variables that are available to the template. Static variables are managed in the configuration file. Dynamic variables are determined at run-time. A good size of logo to use is 127x127px and must be a png file.
 
 Template Variables:
 * net_type (dynamic)
@@ -73,7 +76,7 @@ td {
   color: Silver;
 }
 </style>
-{% block title %}<h2>Amateur Radio {{ net_type }} Net for {{ net_date }}</h2> {% endblock %}
+{% block title %}<h2>{{ net_type }} Net for {{ net_date }}</h2> {% endblock %}
 </head>
 <body>
 {% block content %}
@@ -81,7 +84,7 @@ td {
 <tr>
 <td><img src="cid:{{logo}}"></td>
 <td>
-<p><h3>Amateur Radio {{ net_type }} Net Control Operators for {{net_date }}:</h3>
+<p><h3>{{ net_type }} Net Control Operators for {{net_date }}:</h3>
   <font class="font-medium">
   <ul>
       <li><b>Primary Net Control:</b> {{ primary_net_control }}
@@ -105,7 +108,7 @@ td {
 </td>
 </tr>
 <tr><td align='center' colspan='2'>For maintenance to the Net schedule, please contact {{excel_maintainer_name}} <a href='mailto: {{excel_maintainer_email}}'>{{excel_maintainer_email}}</a><br><br>
-<font align='center' class="font-small">This notice automated using the Amateur Radio net_reminder script <br>maintained by {{script_maintainer_name}}, <a href='mailto: {{script_maintainer_email}}'>{{script_maintainer_email}}</a></font><br>
+<font align='center' class="font-small">This notice automated using the net_reminder script <br>maintained by {{script_maintainer_name}}, <a href='mailto: {{script_maintainer_email}}'>{{script_maintainer_email}}</a></font><br>
 </td></tr>
 </table>
 {% endblock %}
@@ -117,11 +120,16 @@ td {
 The default configuration file is net_reminder.yaml. All of the configurable options are set within this file.
 
 Sample Configuration Template:
-```#######################################
+```
+#######################################
 #
 # Excel Spreadsheet Configuration
 #
 #######################################
+url_roster: <url>TestRoster.xlsx
+url_schedule: <url>/NetControlSchedule.xlsx
+url_user: '<user name>'
+url_pass: '<app password>'
 # Excel Roster and Schedule files and sheets
 schedule_excel_file: excel_src/NetControlSchedule.xlsx
 schedule_sheet_name: Rev 2
@@ -143,19 +151,22 @@ smtp_auth_pass: <Authentication password>
 logo: image_src/LNLogo.png
 # Email subject template
 email_subject_template: {0} Net for {1}
+no_net_control_email_subject_template: "ATTENTION: No Net Control Configured as of {0}"
 # Email body template file
-email_config: html_src/net_reminder.html
+email_config: net_reminder.html
+no_net_control_email_config: no_net_reminder.html
 # Email reply-to
 email_reply_to: <Who should receive reply emails>
 # Email body script maintainer info
-script_maintainer_name: Your Name
-script_maintainer_email: xyzzy@example.com
+script_maintainer_name: <maintainer name>
+script_maintainer_email: <maintainer email>
 # Email body Excel files maintainer info
 excel_maintainer_name: <Excel file maintainer>
 excel_maintainer_email: <Excel file email address>
 # Email body switching duty notification maintainer
 switch_notify1_name: <Name of who to notify when switching>
 switch_notify1_email: <Email of who to notify when switching>
-switch_notify2_name: Your Name
-switch_notify2_email: xyzzy@example.com
+switch_notify2_name: <switch notifier 2 name>
+switch_notify2_email: <switch notifier 2 email>
 ```
+
