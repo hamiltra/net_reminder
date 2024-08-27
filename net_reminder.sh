@@ -17,7 +17,7 @@ pip install -r requirements.txt
 # python3 /usr/local/bin/net_reminder.py -c /etc/net_reminder/net_reminder.yaml --log /var/log/net_reminder/net_reminder.log --test --test_email <your email>
 
 # For running...
-python3 /usr/local/bin/net_reminder.py -c /etc/net_reminder/net_reminder.yaml --log /var/log/net_reminder/net_reminder.log 
+python3 /usr/local/bin/net_reminder.py -c /etc/net_reminder/net_reminder.yaml --log /var/log/net_reminder/net_reminder.log --fetch_remote
 
 # Deactivate the virtual environment
 deactivate
