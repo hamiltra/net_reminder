@@ -3,6 +3,10 @@
 # Excel Spreadsheet Configuration
 #
 #######################################
+url_roster: <url>TestRoster.xlsx
+url_schedule: <url>/NetControlSchedule.xlsx
+url_user: '<user name>'
+url_pass: '<app password>'
 # Excel Roster and Schedule files and sheets
 schedule_excel_file: excel_src/NetControlSchedule.xlsx
 schedule_sheet_name: Current
