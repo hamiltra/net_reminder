@@ -26,6 +26,14 @@ import pandas as pd
 from pandas.core.groupby.groupby import DataError
 # Configuration file
 import yaml
+import requests
+#from requests.exceptions import HTTPError
+#from requests.auth import HTTPBasicAuth
+
+#######################################
+# Script version
+#######################################
+SCRIPT_VERSION = "1.0.0"
 
 #######################################
 # Declaring global vars
@@ -47,6 +55,7 @@ EMAIL_SUBJECT_TEMPLATE = None
 NO_NET_CONTROL_EMAIL_SUBJECT_TEMPLATE = None
 TEST_EMAIL = None
 EMAIL_REPLY_TO = None
+FETCH_REMOTE_FILES = False
 
 #######################################
 # Sample email template
@@ -147,15 +156,52 @@ def usage():
         Args: None
         Returns: None
     """
-    print("net_reminder.py - Net Reminder\n")
-    print(" -h, --help        This notice.")
-    print(" -c, --config      Configuration file. default: net_reminder.yaml")
-    print(" -e, --econfig     Email layout configuration file. default: net_reminder.html")
-    print(" -l, --log         Log file. default: net_reminder.log")
-    print(" -n, --now         Now: mm/dd/yyyy. default: current date")
-    print(" -s, --subject     Email subject. default: '<0> Net for <1>'")
-    print(" -t, --test        Run script but don't send mail and print output. default: False")
-    print(" -q, --test_email  Run script using test emails provided. default: None")
+    print(f"net_reminder.py {SCRIPT_VERSION}")
+    print("")
+    print("Net reminder - Amateur radio Net email reminder")
+    print("")
+    print(" -h, --help                This help notice.")
+    print(" -c, --config <file>       Configuration file (default: net_reminder.yaml).")
+    print(" -e, --econfig <file>      Email layout configuration file \
+(default: net_reminder.html).")
+    print(" -f, --fetch_remote        Fetch remote files (default: False).")
+    print(" -l, --log <file>          Log file (default: net_reminder.log).")
+    print(" -n, --now <mm/dd/YYYY>    Now: mm/dd/yyyy (default: current date).")
+    print(" -s, --subject <string>    Email subject (default: '<0> Net for\
+<1>').")
+    print(" -t, --test                Run script but don't send mail and print \
+output (default: False).")
+    print(" -q, --test_email <email>  Run script using test emails provided \
+(default: None).")
+    print("")
+    print("Usage: python3 net_reminder.py [OPTIONS]")
+    print("     -h,--help                This help notice.")
+    print("     -c,--config <file>       Script configuration file (YAML format) \
+(default: net_reminder.yaml).")
+    print("                              See accompanying README for all parameters available.")
+    print("     -e,--econfig <file>      Email configuration file (HTML format) \
+(default: net_reminder.html).")
+    print("                              Uses Jinja2 variable substitutio for supplied variables. \
+        See accompanying README.")
+    print("     -f,--fetch_remote        Fetch remote files using API (URL format) \
+(default: None).")
+    print("                              To use, the two URLs to fetch the file MUST be setup \
+properly. See accompanying README.")
+    print("     -l,--log <file>          Log file (default: net_reminder.log).")
+    print("     -n,--now <mm/dd/YYYY>    Now in US date format (mm/dd/YYYY) \
+(default: current date).")
+    print("     -s,--subject <string>    Email subject (default: '<0> Net for <1>').")
+    print("                                Supplied variable position 0: net type. \
+Typically Weekly or Travel.")
+    print("                                Supplied variable position 1: current date.")
+    print("     -t,--test                Test only. (default: False).")
+    print("                              This flag when set will show the completed email it \
+would've sent to the recipients.")
+    print("                              Use in conjunction with --test_email flag to test \
+email outputs before using in")
+    print("                              production.")
+    print("     -q,--test_email <email>  Run script and send email to provided email address(es) \
+(default: None).")
     print("")
 
 
@@ -224,6 +270,7 @@ def gather_no_net_email_addresses():
 
     return email_dist
 
+
 def email_no_net_notice ():
     """Sends a message to the maintainers that no net controls are present given the date
 
@@ -269,13 +316,14 @@ def email_no_net_notice ():
         s.sendmail(me, email_dist, msg.as_string())
         s.close()
     else:
+        logger.info("Test flag set on command line. Not sending email...")
         print(email_body)
 
 
 def fill_email_net_notice_template(net_vars):
     """Completes the email template
     
-        Args: None
+        Args: DICTIONARY    net_vars
 
         Return: STRING email_body
     """
@@ -333,6 +381,7 @@ def create_email_subject(net_vars):
 
     return email_subject
 
+
 def gather_email_addresses():
     """Generates the email address list from the roster sheets defined
     
@@ -358,10 +407,11 @@ def gather_email_addresses():
     logging.info("Email Distribution List: %s", ",".join(email_dist))
     return email_dist
 
+
 def email_net_notice (net_vars):
     """Sends an email reminder to the membership of the upcoming net
 
-        Args: None
+        Args: DICTIONARY    net_vars
 
         Returns: None
     """
@@ -422,7 +472,40 @@ def email_net_notice (net_vars):
         s.sendmail(me, email_dist, msg.as_string())
         s.close()
     else:
+        logger.info("Test flag set on command line. Not sending email...")
         print(email_body)
+
+
+def fetch_remote_file(url, filename, user, password):
+    """Fetch file from Nextcloud
+    
+    Args:   STRING url
+            STRING filename
+            STRING user
+            STRING password
+            
+    Return: None
+    """
+
+    try:
+
+        req = requests.request(method='get',
+                        url=url,
+                        auth=(user,password), timeout=30)
+        logger.info("File request %s status code: %s", url, req.status_code)
+
+        if os.path.isfile(filename):
+            os.unlink(filename)
+
+        with open(filename, 'wb') as f:
+            for chunk in req.iter_content(chunk_size=512 * 1024):
+                if chunk: # filter out keep-alive new chunks
+                    f.write(chunk)
+            f.close()
+    except (IOError, requests.exceptions.Timeout) as e:
+        logger.fatal(e)
+        sys.exit()
+
 
 def log_setup(filename):
     """Setups up timed rotation of logging
@@ -449,6 +532,7 @@ def log_setup(filename):
 
     return timed_logger
 
+
 ###########################################################
 # Begin Script
 ###########################################################
@@ -457,8 +541,8 @@ s_net_vars = {}
 
 # Grab the command line args
 try:
-    OPTS, args = getopt.getopt(sys.argv[1:], "c:l:hn:ts:e:q:x:",
-                            ["help", "config=", "econfig=", "nconfig=", "log=",
+    OPTS, args = getopt.getopt(sys.argv[1:], "c:l:hn:ts:e:q:x:f",
+                            ["help", "config=", "econfig=", "fetch_remote", "nconfig=", "log=",
                                 "now=","subject=","test","test_email="]
                             )
 except getopt.GetoptError as e:
@@ -485,6 +569,8 @@ try:
             EMAIL_SUBJECT_TEMPLATE = a
         elif o in ["-t","--test"]:
             TEST = True
+        elif o in ["-f","--fetch_remote"]:
+            FETCH_REMOTE_FILES = True
         elif o in ["-q","--test_email"]:
             TEST_EMAIL = a
         else:
@@ -503,7 +589,7 @@ if NOW is None:
 
 # Setup logging
 logger = log_setup(LOG_NAME)
-logger.info("Started")
+logger.info("Starting net_reminder.py %s", SCRIPT_VERSION)
 
 with open(CONFIG_FILE, 'r', encoding='UTF-8') as yconfig_file:
     try:
@@ -530,6 +616,30 @@ with open(CONFIG_FILE, 'r', encoding='UTF-8') as yconfig_file:
     except yaml.YAMLError as exc:
         print(exc)
         logger.fatal(exc)
+        sys.exit()
+
+try:
+
+    if FETCH_REMOTE_FILES is True:
+        logger.info("Fetching remote files")
+        fetch_remote_file(SCRIPT_CONFIG['url_roster'],
+                          SCRIPT_CONFIG['roster_excel_file'],
+                          SCRIPT_CONFIG['url_user'],
+                          SCRIPT_CONFIG['url_pass']
+                          )
+
+        fetch_remote_file(SCRIPT_CONFIG['url_schedule'],
+                          SCRIPT_CONFIG['schedule_excel_file'],
+                          SCRIPT_CONFIG['url_user'],
+                          SCRIPT_CONFIG['url_pass']
+                          )
+    else:
+        logger.info("Using local files")
+
+except KeyError as e:
+    print(e)
+    logger.fatal(e)
+    sys.exit()
 
 try:
   # Use the email config default if all else fails
@@ -621,7 +731,7 @@ try:
     s_net_vars['logo'] = SCRIPT_CONFIG['logo']
 
     email_net_notice(s_net_vars)
-except DataError as e:
+except (DataError, KeyError) as e:
     print(e)
     logging.fatal(e)
     sys.exit(e)
