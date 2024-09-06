@@ -10,7 +10,8 @@
 
 [Unit]
 Description=Net Reminder Email Notifications
-After=network.target
+# Commented After to prevent execution of script following a reboot
+# After=network.target
 
 [Service]
 ExecStart=/usr/local/bin/net_reminder.sh
@@ -22,4 +23,5 @@ StandardOutput=journal
 StandardError=journal
 
 [Install]
-WantedBy=multi-user.target
+# Commented WantedBy to prevent execution of script following a reboot
+# WantedBy=multi-user.target
